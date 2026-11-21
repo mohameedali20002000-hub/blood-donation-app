@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Blood Donation Network</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap">
+<style>
+:root{--bg:#f7f4f5;--surface:#fff;--ink:#1f2a33;--muted:#667580;--line:#e5dde0;--red:#a4122b;--red-soft:#f6dde2;--ok:#1f7a6e;--ok-soft:#d9efeb;--warn:#b26a00;--warn-soft:#fbead0;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#161a1e;--surface:#20262c;--ink:#eef1f3;--muted:#98a5ae;--line:#323b43;--red:#ff6b81;--red-soft:#3b1f26;--ok:#5fd1bf;--ok-soft:#173631;--warn:#f0b04d;--warn-soft:#3b2d14}}
+:root[data-theme="dark"]{--bg:#161a1e;--surface:#20262c;--ink:#eef1f3;--muted:#98a5ae;--line:#323b43;--red:#ff6b81;--red-soft:#3b1f26;--ok:#5fd1bf;--ok-soft:#173631;--warn:#f0b04d;--warn-soft:#3b2d14}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.45;padding-bottom:84px}
+main{max-width:720px;margin:0 auto;padding:20px 16px}
+h1{font-size:2rem;font-weight:800;letter-spacing:-.02em;margin:4px 0 2px}
+h2{font-size:1.15rem;font-weight:600;margin:26px 0 10px}
+p.sub{color:var(--muted);margin:0 0 18px;max-width:46ch}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 8px 8px;text-align:center;position:relative;overflow:hidden}
+.tile b{font-size:1.2rem;font-weight:800;display:block}
+.tile span{font-size:.75rem;color:var(--muted)}
+.tile i{position:absolute;left:0;bottom:0;width:100%;background:var(--red-soft);z-index:0;transition:height .4s}
+.tile>*{position:relative;z-index:1}
+.tile.low{border-color:var(--red)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:6px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px}
+.stat b{font-size:1.6rem;font-weight:800;display:block;line-height:1.1}
+.stat span{font-size:.8rem;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:8px;display:flex;gap:12px;align-items:center}
+.card .t{flex:1;min-width:0}
+.card .t strong{display:block}
+.card .t small{color:var(--muted)}
+.bt{min-width:46px;height:46px;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center;font-weight:800;font-size:.95rem}
+.tag{font-size:.75rem;border-radius:99px;padding:2px 10px;font-weight:600;white-space:nowrap}
+.tag.high{background:var(--red-soft);color:var(--red)}.tag.medium{background:var(--warn-soft);color:var(--warn)}.tag.low,.tag.ok{background:var(--ok-soft);color:var(--ok)}
+.filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.filters .full{grid-column:1/-1}
+input,select,button{font:inherit;color:var(--ink)}
+input,select{width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface)}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+label.chk{display:flex;gap:8px;align-items:center;font-size:.9rem;color:var(--muted)}
+label.chk input{width:auto}
+.btn{background:var(--red);color:#fff;border:0;border-radius:10px;padding:11px 16px;font-weight:600;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--red);border:1px solid var(--red)}
+.btn.sm{padding:8px 12px;font-size:.85rem}
+details{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:14px}
+summary{font-weight:600;cursor:pointer}
+details form{display:grid;gap:8px;margin-top:12px}
+.empty{color:var(--muted);padding:18px;text-align:center;border:1px dashed var(--line);border-radius:14px}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);display:flex;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));z-index:5}
+nav button{flex:1;background:none;border:0;padding:8px 4px;font-size:.8rem;color:var(--muted);cursor:pointer;border-radius:10px}
+nav button[aria-current="true"]{color:var(--red);font-weight:800;background:var(--red-soft)}
+#toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:99px;font-size:.9rem;opacity:0;pointer-events:none;transition:opacity .25s;z-index:9}
+#toast.on{opacity:1}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<nav id="nav"></nav>
+<div id="toast" role="status"></div>
+<script>
+var TYPES=['A+','A-','B+','B-','AB+','AB-','O+','O-'];
+var DAY=864e5;
+function ago(d){return new Date(Date.now()-d*DAY).toISOString().slice(0,10)}
+function inDays(d){return new Date(Date.now()+d*DAY).toISOString().slice(0,10)}
+var S={tab:'overview',
+donors:[],requests:[],stock:{},donations:[],
+f:{bt:'',city:'',q:'',elig:false},matchReq:1};
+var $=function(s){return document.querySelector(s)};
+function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function eligible(d){return !d.last||(Date.now()-new Date(d.last))/DAY>=90}
+function toast(m){var t=$('#toast');t.textContent=m;t.className='on';setTimeout(function(){t.className=''},2200)}
+function opts(list,sel,all){return (all?'<option value="">'+all+'</option>':'')+list.map(function(x){return '<option'+(x==sel?' selected':'')+'>'+x+'</option>'}).join('')}
+
+function overview(){
+var open=S.requests.filter(function(r){return r.status=='Open'});
+var month=new Date().toISOString().slice(0,7);
+var mDon=S.donations.filter(function(x){return x.date.slice(0,7)==month}).length;
+var tiles=TYPES.map(function(t){var s=S.stock[t],soon=(new Date(s.e)-Date.now())/DAY<=14,low=s.u<3||soon;
+return '<div class="tile'+(low?' low':'')+'"><i style="height:'+Math.min(100,s.u/15*100)+'%"></i><b>'+t+'</b><span>'+s.u+' units</span>'+(low?'<br><span style="color:var(--red)">'+(s.u<3?'Low stock':'Expires soon')+'</span>':'')+'</div>'}).join('');
+var urgent=open.filter(function(r){return r.urg=='High'}).map(function(r){return reqCard(r)}).join('')||'<div class="empty">No urgent requests right now.</div>';
+return '<h1>Blood Donation Network</h1><p class="sub">Connect donors with patients who need blood, and keep an eye on the stock.</p>'+
+'<div class="stats"><div class="stat"><b>'+S.donors.length+'</b><span>Donors</span></div><div class="stat"><b>'+open.length+'</b><span>Open requests</span></div><div class="stat"><b>'+mDon+'</b><span>Donations this month</span></div></div>'+
+'<h2>Stock by blood type</h2><div class="grid">'+tiles+'</div><h2>Urgent requests</h2>'+urgent}
+
+function reqCard(r){return '<div class="card"><div class="bt">'+r.bt+'</div><div class="t"><strong>'+esc(r.patient)+'</strong><small>'+esc(r.city)+' · '+r.got+'/'+r.need+' units</small></div><span class="tag '+(r.status=='Fulfilled'?'ok':r.urg.toLowerCase())+'">'+(r.status=='Fulfilled'?'Fulfilled':r.urg)+'</span></div>'}
+
+function donors(){
+var f=S.f,cities=Array.from(new Set(S.donors.map(function(d){return d.city})));
+var list=S.donors.filter(function(d){return (!f.bt||d.bt==f.bt)&&(!f.city||d.city==f.city)&&(!f.q||d.name.toLowerCase().indexOf(f.q.toLowerCase())>-1)&&(!f.elig||eligible(d))});
+var cards=list.map(function(d){var e=eligible(d);return '<div class="card"><div class="bt">'+d.bt+'</div><div class="t"><strong>'+esc(d.name)+'</strong><small>'+esc(d.city)+' · '+esc(d.phone)+'</small></div><span class="tag '+(e?'ok':'medium')+'">'+(e?'Can donate':'Resting')+'</span></div>'}).join('')||'<div class="empty">No donors match these filters. Try removing one.</div>';
+return '<h1>Donors</h1><p class="sub">Search by name, blood type and city.</p>'+
+'<div class="filters"><input class="full" id="fq" placeholder="Search by name" value="'+esc(f.q)+'"><select id="fbt">'+opts(TYPES,f.bt,'All blood types')+'</select><select id="fcity">'+opts(cities,f.city,'All cities')+'</select><label class="chk full"><input type="checkbox" id="felig"'+(f.elig?' checked':'')+'> Show only donors who can donate now</label></div>'+
+'<details><summary>Add a donor</summary><form id="addDonor"><input name="name" placeholder="Full name" required><select name="bt">'+opts(TYPES)+'</select><input name="city" placeholder="City" required><input name="phone" placeholder="Phone" required><button class="btn">Save donor</button></form></details>'+cards}
+
+function requests(){
+var cards=S.requests.slice().reverse().map(reqCard).join('');
+return '<h1>Requests</h1><p class="sub">Patients waiting for blood.</p>'+
+'<details><summary>New request</summary><form id="addReq"><input name="patient" placeholder="Patient name" required><select name="bt">'+opts(TYPES)+'</select><input name="need" type="number" min="1" value="1" required><select name="urg">'+opts(['High','Medium','Low'],'Medium')+'</select><input name="city" placeholder="City" required><button class="btn">Create request</button></form></details>'+cards}
+
+function match(){
+var open=S.requests.filter(function(r){return r.status=='Open'});
+if(!open.length)return '<h1>Match</h1><div class="empty">All requests are fulfilled. New requests will show up here.</div>';
+if(!open.some(function(r){return r.id==S.matchReq}))S.matchReq=open[0].id;
+var r=S.requests.find(function(x){return x.id==S.matchReq});
+var m=S.donors.filter(function(d){return d.bt==r.bt&&d.city==r.city&&eligible(d)});
+var cards=m.map(function(d){return '<div class="card"><div class="bt">'+d.bt+'</div><div class="t"><strong>'+esc(d.name)+'</strong><small>'+esc(d.phone)+(d.last?' · last donated '+d.last:' · first-time donor')+'</small></div><button class="btn sm" data-don="'+d.id+'">Record donation</button></div>'}).join('')||'<div class="empty">No eligible donors in '+esc(r.city)+' for '+r.bt+' yet. Add donors or widen the search.</div>';
+return '<h1>Match</h1><p class="sub">Donors with the same blood type and city who last donated 90 or more days ago.</p>'+
+'<select id="mreq">'+open.map(function(x){return '<option value="'+x.id+'"'+(x.id==S.matchReq?' selected':'')+'>'+esc(x.patient)+' · '+x.bt+' · '+x.city+'</option>'}).join('')+'</select>'+
+'<h2>Needs '+r.need+' units · '+r.got+' received</h2>'+cards}
+
+var TABS=[['overview','Overview'],['donors','Donors'],['requests','Requests'],['match','Match']];
+function render(){
+$('#app').innerHTML={overview:overview,donors:donors,requests:requests,match:match}[S.tab]();
+$('#nav').innerHTML=TABS.map(function(t){return '<button data-tab="'+t[0]+'"'+(S.tab==t[0]?' aria-current="true"':'')+'>'+t[1]+'</button>'}).join('');
+bind()}
+
+function bind(){
+document.querySelectorAll('[data-tab]').forEach(function(b){b.onclick=function(){S.tab=b.dataset.tab;render();window.scrollTo(0,0)}});
+var q=$('#fq');if(q){q.oninput=function(){S.f.q=q.value;render();var n=$('#fq');n.focus();n.setSelectionRange(99,99)};
+$('#fbt').onchange=function(e){S.f.bt=e.target.value;render()};$('#fcity').onchange=function(e){S.f.city=e.target.value;render()};$('#felig').onchange=function(e){S.f.elig=e.target.checked;render()}}
+var ad=$('#addDonor');if(ad)ad.onsubmit=function(e){e.preventDefault();var v=new FormData(ad);api('/api/donors',{name:v.get('name'),bt:v.get('bt'),city:v.get('city').trim(),phone:v.get('phone')},'Donor saved')};
+var ar=$('#addReq');if(ar)ar.onsubmit=function(e){e.preventDefault();var v=new FormData(ar);api('/api/requests',{patient:v.get('patient'),bt:v.get('bt'),need:+v.get('need'),urg:v.get('urg'),city:v.get('city').trim()},'Request created')};
+var mr=$('#mreq');if(mr)mr.onchange=function(e){S.matchReq=+e.target.value;render()};
+document.querySelectorAll('[data-don]').forEach(function(b){b.onclick=function(){
+var d=S.donors.find(function(x){return x.id==b.dataset.don}),r=S.requests.find(function(x){return x.id==S.matchReq});
+api('/api/donate',{donor:d.id,request:r.id},'Donation recorded')}})}
+function load(){return fetch('/api/state').then(function(r){return r.json()}).then(function(j){S.donors=j.donors;S.requests=j.requests;S.stock=j.stock;S.donations=j.donations;render()}).catch(function(){toast('Cannot reach the server')})}
+function api(url,body,msg){fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(r){return r.json().then(function(j){if(!r.ok)throw j;return j})}).then(function(){toast(msg);return load()}).catch(function(e){toast(e.error||'Something went wrong')})}
+load();
+</script>
+</body>
+</html>
